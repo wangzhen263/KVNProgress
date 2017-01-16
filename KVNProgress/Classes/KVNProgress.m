@@ -94,24 +94,24 @@ static KVNProgressConfiguration *configuration;
 @implementation KVNProgress
 
 #pragma mark - Shared
-
+static KVNProgress *sharedView = nil;
 + (KVNProgress *)sharedView
 {
-	static KVNProgress *sharedView = nil;
-	static dispatch_once_t onceToken;
-	
-	dispatch_once(&onceToken, ^{
+    if (!sharedView) {
+        NSBundle* bundle = [NSBundle bundleForClass:[KVNProgress class]];
+        if(![[NSBundle mainBundle] pathForResource:@"KVNProgressView" ofType:@"nib"])  {
+            bundle = [NSBundle bundleWithURL:[[NSBundle mainBundle] URLForResource:@"CoviuSDKiOS" withExtension:@"bundle"]]; ;
+        }
+        
 		UINib *nib = [UINib nibWithNibName:@"KVNProgressView"
-                                    bundle:[NSBundle bundleForClass:[KVNProgress class]]];
-		NSArray *nibViews = [nib instantiateWithOwner:self
-											  options:0];
+                                    bundle:bundle];
+		NSArray *nibViews = [nib instantiateWithOwner:self options:0];
 
-		
 		sharedView = nibViews[0];
 		
 		sharedView.queue = [NSOperationQueue mainQueue];
 		sharedView.queue.maxConcurrentOperationCount = 1;
-	});
+    }
 	
 	return sharedView;
 }
